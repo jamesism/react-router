@@ -1,6 +1,8 @@
 import expect from 'expect'
-import React, { PropTypes } from 'react'
+import React, { Component, PropTypes } from 'react'
 import StaticRouter from '../StaticRouter'
+import Router from '../MemoryRouter'
+import Match from '../Match'
 import { renderToString } from 'react-dom/server'
 
 //console.error = () => {}
@@ -226,7 +228,7 @@ describe('StaticRouter', () => {
     it('does not append a trailing slash to the root path if a query is specified', () => {
       expect(renderToString(
         <StaticRouter {...routerProps} basename={BASENAME}>
-        <Test to={{pathname:'/', query:{a:1}}} />
+          <Test to={{pathname:'/', query:{a:1}}} />
         </StaticRouter>
       )).toContain('/foo?a=1</div>')
     })
@@ -248,6 +250,48 @@ describe('StaticRouter', () => {
         )
         expect(teardownPrompt).toExist()
         expect(teardownPrompt).toBeA('function')
+      })
+    })
+  })
+
+  describe('router childContext methods', () => {
+    class PageDir extends Component {
+      componentDidMount() {
+        let { dir } = this.props
+        let { router } = this.context
+        if (dir === 'back') router.goBack()
+        else if (dir === 'forward') router.goForward()
+      }
+      render() {
+        return <p>Route</p>
+      }
+    }
+    PageDir.contextTypes = { router: PropTypes.object }
+
+    const run = (locations, index, dir, cb) => {
+      renderToString(
+        <Router intialEntries={locations} initialIndex={index}>
+          <div>
+            <Match
+              pattern="/first"
+              children={(props) => (props.matched && cb(props), <div>Woohoo!</div>)} />
+            <Match
+              pattern="/second"
+              render={() => <PageDir dir={dir} />} />
+          </div>
+        </Router>
+      )
+    }
+
+    it('goes back when you call goBack', () => {
+      run(['/first', '/second'], 1, 'back', (props) => {
+        expect(props.matched).toEqual(true)
+      })
+    })
+
+    it('goes forward when you call goForward', () => {
+      run(['/first', '/second'], 0, 'forward', (props) => {
+        expect(props.matched).toEqual(true)
       })
     })
   })

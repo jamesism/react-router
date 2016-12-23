@@ -31,6 +31,8 @@ class Router extends React.Component {
       <StaticRouter
         action={action}
         location={location}
+        onBack={history.goBack}
+        onForward={history.goForward}
         onPush={history.push}
         onReplace={history.replace}
         blockTransitions={history.block}

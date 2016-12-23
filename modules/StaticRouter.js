@@ -50,6 +50,8 @@ class StaticRouter extends React.Component {
     return {
       transitionTo: this.transitionTo,
       replaceWith: this.replaceWith,
+      goBack: this.props.onBack,
+      goForward: this.props.onForward,
       blockTransitions: this.blockTransitions,
       createHref: this.createHref,
       getState: () => ({ location: this.location }),
@@ -125,6 +127,8 @@ if (__DEV__) {
 
     onPush: PropTypes.func.isRequired,
     onReplace: PropTypes.func.isRequired,
+    onBack: PropTypes.func.isRequired,
+    onForward: PropTypes.func.isRequired,
     onMatch: PropTypes.func,
     blockTransitions: PropTypes.func,
 
